@@ -219,7 +219,7 @@ the steps were filters, it was rebuilt so they are.
   carried either. `reported` stays, so a picker can leave played matches out.
 - **Logos go into the image library as URL entries**, `ngs/<team name>`, through
   `urlAssets` in the studio's handler; the plugin still writes nothing. That needed a
-  fix in Single Studio's core, which ships in the release after 0.15.0: a URL entry only in the room's index was offered by every picker and
+  fix in Single Studio's core, shipped in 0.16.0: a URL entry only in the room's index was offered by every picker and
   drew nothing on a graphic, because `resolveAsset` read only this machine's
   IndexedDB, and a plugin handler writes from the worker, so its entries are only in
   the index. Now `useAssetUrl` falls back to the index for a URL entry; an e2e check

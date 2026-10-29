@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import * as core from '@single-studio/core/worker'
+import { createVelcroHost, Doc, urlAssets } from '@single-studio/core/worker'
 
 import { logos, ngs, ngsMutations, NgsHandler } from '../src/index.js'
 
@@ -50,9 +50,7 @@ class Heroes extends NgsHandler {
       'variables.ngs.divisions': divisions.map(({ key, name }) => ({ key, name })),
       'variables.ngs.maps': maps,
     })
-    // The README writes these unconditionally, which needs the core release after
-    // 0.15.0. Guarded here so the rest of the loop is tested against 0.15.0 too.
-    if (core.urlAssets) this.mutate('set', core.urlAssets(logos(teams)))
+    this.mutate('set', urlAssets(logos(teams)))
   }
 
   onMatches({ matches }) {
@@ -100,7 +98,7 @@ let n = 0
 const studio = async () => {
   n += 1
 
-  const made = core.createVelcroHost({ name: `ngs-host-${n}`, persist: false, mutations: { ...ngsMutations, ...load }, plugins: [ngs(Heroes)] })
+  const made = createVelcroHost({ name: `ngs-host-${n}`, persist: false, mutations: { ...ngsMutations, ...load }, plugins: [ngs(Heroes)] })
 
   await made.started
 
@@ -112,21 +110,21 @@ afterEach(() => {
 })
 
 describe('a studio running the plugin', () => {
-  it.runIf(core.urlAssets)('Fetch season on the panel puts every logo in the image library, under its team’s name (core after 0.15.0)', async () => {
+  it('Fetch season on the panel puts every logo in the image library, under its team’s name', async () => {
     league()
     const made = await studio()
 
     expect(await made.actPlugin('ngs', 'season')).toEqual({ ok: true })
 
-    expect(core.Doc.read(made.doc, 'assets.ngs/stormblessed')).toEqual({
+    expect(Doc.read(made.doc, 'assets.ngs/stormblessed')).toEqual({
       kind: 'url',
       url: 'https://s3.amazonaws.com/ngs-image-storage/Stormblessed_3562.png',
       name: 'Stormblessed',
     })
     // "Pending" has no logo, so no entry that would draw nothing.
-    expect(core.Doc.read(made.doc, 'assets.ngs/pending')).toBeUndefined()
-    expect(core.Doc.read(made.doc, 'variables.ngs.season')).toBe(22)
-    expect(core.Doc.read(made.doc, 'variables.ngs.maps')).toHaveLength(12)
+    expect(Doc.read(made.doc, 'assets.ngs/pending')).toBeUndefined()
+    expect(Doc.read(made.doc, 'variables.ngs.season')).toBe(22)
+    expect(Doc.read(made.doc, 'variables.ngs.maps')).toHaveLength(12)
   })
 
   it('choosing a division offers that division’s matches still to be played', async () => {
@@ -134,9 +132,9 @@ describe('a studio running the plugin', () => {
     const made = await studio()
 
     made.mutate('ngs:matches', { division: 'nexus' })
-    await until(() => core.Doc.read(made.doc, 'variables.ngs.matches'), 'the matches to land')
+    await until(() => Doc.read(made.doc, 'variables.ngs.matches'), 'the matches to land')
 
-    const offered = core.Doc.read(made.doc, 'variables.ngs.matches')
+    const offered = Doc.read(made.doc, 'variables.ngs.matches')
 
     expect(offered.map((match) => match.id)).toEqual(['avwymv5o4sbc', 'avwymv5o4sbg'])
     expect(offered[1].label).toBe("Nexus r2: TBD vs Durotan's Couch")
@@ -148,17 +146,17 @@ describe('a studio running the plugin', () => {
 
     await made.actPlugin('ngs', 'season')
     made.mutate('ngs:matches', { division: 'heroic' })
-    await until(() => core.Doc.read(made.doc, 'variables.ngs.matches')?.length === 2, 'Heroic’s matches to land')
+    await until(() => Doc.read(made.doc, 'variables.ngs.matches')?.length === 2, 'Heroic’s matches to land')
 
     made.mutate('ngs:load', { id: '9j1jaymvek8jy8' })
 
-    expect(core.Doc.read(made.doc, 'variables.home.name')).toBe('Pending')
-    expect(core.Doc.read(made.doc, 'variables.away.name')).toBe('Hat saika and r')
+    expect(Doc.read(made.doc, 'variables.home.name')).toBe('Pending')
+    expect(Doc.read(made.doc, 'variables.away.name')).toBe('Hat saika and r')
     // Pending has no logo: no value at all, so the studio's own no-logo design shows.
-    expect(core.Doc.read(made.doc, 'variables.home.logo')).toBeUndefined()
-    expect(core.Doc.read(made.doc, 'variables.home.record')).toBe('14–2')
-    expect(core.Doc.read(made.doc, 'variables.maps')).toHaveLength(12)
-    expect(core.Doc.read(made.doc, 'variables.tournament.division')).toBe('Heroic')
-    expect(core.Doc.read(made.doc, 'variables.tournament.game')).toBe('Game 1 of 5')
+    expect(Doc.read(made.doc, 'variables.home.logo')).toBeUndefined()
+    expect(Doc.read(made.doc, 'variables.home.record')).toBe('14–2')
+    expect(Doc.read(made.doc, 'variables.maps')).toHaveLength(12)
+    expect(Doc.read(made.doc, 'variables.tournament.division')).toBe('Heroic')
+    expect(Doc.read(made.doc, 'variables.tournament.game')).toBe('Game 1 of 5')
   })
 })

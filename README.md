@@ -9,9 +9,8 @@ division's table. No key and no login; the league's site is public.
 npm i @single-studio/plugin-ngs
 ```
 
-Works with `@single-studio/core` 0.15.0 and later. Putting logos into the image
-library — `urlAssets`, below — needs the core release after 0.15.0, which added
-`urlAssets` and made URL entries written from a handler draw on every graphic.
+Needs `@single-studio/core` 0.16.0 or later, which added `urlAssets` and made URL
+entries written from a handler draw on every graphic.
 
 ## What it does, and when
 
@@ -200,8 +199,7 @@ npm install
 npm test
 ```
 
-The tests run against recorded answers from the league, in `test/fixtures`. Two
-need a core with `urlAssets` and show as skipped against 0.15.0.
+The tests run against recorded answers from the league, in `test/fixtures`.
 
 ## Licence
 

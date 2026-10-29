@@ -49,9 +49,7 @@ true by construction has been removed rather than kept.
 Test names are sentences about what the show does —
 `'a team really called Pending is a team, not a placeholder'` — not about functions.
 
-Two tests need `urlAssets`, which is new in the core release after 0.15.0. They use
-`it.runIf(core.urlAssets)` and show as **skipped** against 0.15.0, not as passing.
-When the dev dependency moves to a core that has it, they run.
+Two tests use core's `urlAssets`, new in 0.16.0, which is why that is the floor.
 
 **Check against the live league before trusting a change to a request.** The
 recordings cannot disagree with the code written from them. From Node 22.21 or
@@ -64,13 +62,15 @@ This ships **source**, not a build: a studio's bundler compiles it.
 - **`@single-studio/core` stays a `peerDependency`.** A normal dependency lets npm
   install a second copy, and two frameworks in one worker means the plugin emits
   and nothing reaches the show, silently.
-- **The peer range is `>=0.15.0 <1.0.0`, not a caret.** On a 0.x version `^0.15.0`
-  means 0.15.x only, so every core minor release would put this plugin in a peer
+- **The peer range is `>=0.16.0 <1.0.0`, not a caret.** On a 0.x version `^0.16.0`
+  means 0.16.x only, so every core minor release would put this plugin in a peer
   conflict, which npm refuses by default, until it was republished. First-party
   plugins never meet this because they release in lockstep with core; this one
   does not. It uses `definePlugin`, `PluginBase` and `PluginHandler`, and a studio's
-  mutations reach it through `ctx.ask`; the tests prove those against 0.15.0. Run
-  them against each new core, and narrow the range if one breaks.
+  mutations reach it through `ctx.ask`, and a studio puts its logos in the image
+  library with `urlAssets` -- new in 0.16.0, and the reason the floor is there. The
+  tests prove all of it against the dev dependency's core. Bump that to each new
+  core, run them, and narrow the range if one breaks.
 - **Relative imports keep their `.js`.** Node resolves this, not a bundler.
 - **`repository` names this repository**, or a `--provenance` publish is refused by
   npm's servers with a 422 that `npm pack` never shows.

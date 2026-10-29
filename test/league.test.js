@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
-import * as core from '@single-studio/core/worker'
+import { urlAssets } from '@single-studio/core/worker'
 
 import { apiFrom, divisionOf, explain, LEAGUE_API, logos, logoUrl, MAPS, matchOf, standingOf, teamOf } from '../src/league.js'
 
@@ -42,11 +42,9 @@ describe('logos', () => {
     })
   })
 
-  // `urlAssets` is new in the core release after 0.15.0. Skipped, visibly, against
-  // an older core.
-  it.runIf(core.urlAssets)('every logo lands in the image library under its team’s name (core after 0.15.0)', () => {
+  it('every logo lands in the image library under its team’s name', () => {
     const teams = recorded('registered').map(teamOf)
-    const patch = core.urlAssets(logos(teams))
+    const patch = urlAssets(logos(teams))
 
     expect(patch['assets.ngs/stormblessed']).toEqual({
       kind: 'url',
