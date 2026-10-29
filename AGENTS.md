@@ -29,7 +29,12 @@ Decided by the owner, and not to be undone without asking:
 
 ```bash
 npm test
+npm run lint
 ```
+
+CI runs both, and a pack dry-run, on every push and pull request. Lint also refuses
+a relative import in `src/` without its `.js`, which the tests cannot catch: Vitest
+resolves it, and Node, loading the published package, does not.
 
 The tests run on recorded answers from the league in `test/fixtures`, trimmed, with
 players' BattleTags replaced. The fake league in the tests filters by division the
@@ -70,13 +75,21 @@ This ships **source**, not a build: a studio's bundler compiles it.
 - **`repository` names this repository**, or a `--provenance` publish is refused by
   npm's servers with a 422 that `npm pack` never shows.
 
-The first publish of `@single-studio/plugin-ngs` cannot use a trusted publisher —
-npm needs the name to exist first — so it goes out once with a token. Then add a
-trusted publisher for this repository on npm, and **opt it into `npm publish`**: new
-ones are stage-only by default.
+**Push a version tag to publish**: `git tag v0.1.0 && git push --tags`.
+`.github/workflows/publish.yml` checks the tag is the version in `package.json` and
+that `repository.url` names this repository, runs the tests and lint, and publishes
+with provenance.
 
-Before publishing: `npm test`, then `npm pack` and look inside. npm refuses to
-unpublish after 72 hours.
+The first publish of `@single-studio/plugin-ngs` cannot use a trusted publisher —
+npm needs the name to exist first — so it needs an `NPM_TOKEN` secret on this
+repository: a granular token with read and write on the `@single-studio` scope, and
+**Bypass 2FA on**, or the publish uploads and then stops asking for a code a runner
+cannot give. Then add this repository as the package's trusted publisher on npm,
+**opt it into `npm publish`** (new ones are stage-only by default), and delete the
+secret.
+
+Before the first publish: `npm pack` and look inside. npm refuses to unpublish after
+72 hours.
 
 ## Comments
 

@@ -22,6 +22,7 @@ jobs:
 
       - run: npm ci
       - run: npm test
+      - run: npm run lint
 
       # The tarball is what a studio installs, and nothing else in here looks at
       # it the way they will: source only, no fixtures, no tests.

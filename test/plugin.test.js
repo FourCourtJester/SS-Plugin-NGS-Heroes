@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { ngs, ngsMutations, NgsHandler } from '../src/index'
+import { ngs, ngsMutations, NgsHandler } from '../src/index.js'
 
 const body = (name) => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8'))
 

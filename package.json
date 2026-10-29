@@ -32,14 +32,18 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint ."
   },
   "peerDependencies": {
     "@single-studio/core": ">=0.15.0 <1.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@single-studio/core": "^0.15.0",
+    "eslint": "^9.15.0",
     "fake-indexeddb": "^6.2.5",
+    "globals": "^17.12.0",
     "vitest": "^5.0.2"
   },
   "publishConfig": {

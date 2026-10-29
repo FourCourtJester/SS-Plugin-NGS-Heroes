@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import * as core from '@single-studio/core/worker'
 
-import { logos, ngs, ngsMutations, NgsHandler } from '../src/index'
+import { logos, ngs, ngsMutations, NgsHandler } from '../src/index.js'
 
 // The whole loop through a real host: a panel button or a board mutation, the
 // plugin asking the league, the studio's handler writing, the show holding it.

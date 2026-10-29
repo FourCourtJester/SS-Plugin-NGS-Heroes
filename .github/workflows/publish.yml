@@ -1,0 +1,96 @@
+# Publish to npm when a version tag is pushed: `git tag v0.1.0 && git push --tags`.
+#
+# The tag has to match `version` in package.json, and the tests and lint have to pass
+# first. npm versions are immutable and cannot be unpublished after 72 hours, so a
+# mistake here is permanent.
+#
+# Authentication: a trusted publisher (OIDC) once the package exists, a token for the
+# first publish. npm can only attach a trusted publisher to a name that already
+# exists, so the very first publish of a new name needs an `NPM_TOKEN` secret --
+# a granular token with read and write on the package, and "Bypass 2FA" on, or the
+# publish uploads and then stops asking for a code a runner cannot give. After it,
+# add this repository as the package's trusted publisher on npmjs.com, opt it into
+# `npm publish` (new ones are stage-only by default), and delete the secret.
+name: Publish
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  # OIDC for trusted publishing, and npm provenance: the package carries a signed
+  # link back to the commit and workflow that built it.
+  id-token: write
+
+jobs:
+  publish:
+    # The template's own repository is tagged with every Single Studio release, and
+    # what it holds is the example, not a plugin. Without this it would try to
+    # publish `single-studio-plugin-example` on every release.
+    if: github.repository != 'FourCourtJester/Single-Studio-Plugin-Template'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      # Deliberately no `registry-url`: it writes an .npmrc expecting a token for the
+      # whole job, and most runs have none. The token is set where it is used.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Check this is a plugin, at the version the tag says
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          url=$(node -p "require('./package.json').repository?.url ?? ''")
+          tag="${GITHUB_REF_NAME#v}"
+
+          if [ "$name" = single-studio-plugin-example ]; then
+            echo "::error::package.json still names the template's example. Give the plugin its own name before publishing."
+            exit 1
+          fi
+
+          if [ "$tag" != "$version" ]; then
+            echo "::error::package.json is $version but the tag says $tag."
+            exit 1
+          fi
+
+          # npm refuses a provenance publish whose repository.url does not name the
+          # repository that built it -- from its servers, after the upload, with a
+          # 422 that `npm pack` never shows. Checked here, before anything goes.
+          normalised=${url#git+}
+          normalised=${normalised%.git}
+          if [ "$normalised" != "https://github.com/$GITHUB_REPOSITORY" ]; then
+            echo "::error::package.json has repository.url '$url'. npm will refuse provenance unless it names https://github.com/$GITHUB_REPOSITORY."
+            exit 1
+          fi
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+
+      - name: Publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          # Trusted publishing needs a newer npm than Node 22 ships with.
+          npm install -g npm@latest
+          npm --version
+
+          # npm only signs releases from a public repository.
+          if [ "$PRIVATE" = "true" ]; then
+            echo "::warning::Publishing without provenance: this repository is private."
+            provenance=""
+          else
+            provenance="--provenance"
+          fi
+
+          if [ -n "$NPM_TOKEN" ]; then
+            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+            echo "::notice::Publishing with NPM_TOKEN. Once the package exists, add a trusted publisher on npm and delete the secret."
+          fi
+
+          npm publish --access public $provenance
