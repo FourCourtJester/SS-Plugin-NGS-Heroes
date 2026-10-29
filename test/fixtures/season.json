@@ -1,0 +1,11 @@
+{
+  "message": "Found the season schedule.",
+  "route": "/api//admin/getSeasonInfo",
+  "returnObject": {
+    "value": 22,
+    "seasonStartDate": 1786334400000,
+    "seasonEndDate": 1795928400000,
+    "registrationOpen": false,
+    "registrationEndDate": 1784433600000
+  }
+}

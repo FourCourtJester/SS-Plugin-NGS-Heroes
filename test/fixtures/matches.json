@@ -1,0 +1,244 @@
+{
+  "message": "Found these matches",
+  "route": "/api/schedule/fetch/matches",
+  "returnObject": [
+    {
+      "_id": "6a74fe5daa476400222bdde8",
+      "vodLinks": ["https://youtu.be/hptcDPTZuBM"],
+      "idChildren": [],
+      "challonge_idChildren": [],
+      "challonge_match_ref": "467476802",
+      "type": "seasonal",
+      "season": 22,
+      "challonge_tournament_ref": "18325938",
+      "matchId": "9xwoymsi1cxeh",
+      "round": 5,
+      "divisionConcat": "heroic",
+      "home": {
+        "_id": "6a74fe5daa476400222bdde9",
+        "teamName": "Pending",
+        "id": "695d8198e510c60020a1ae10",
+        "logo": null,
+        "teamName_lower": "pending",
+        "ticker": "PENDING",
+        "dominator": true,
+        "score": 2
+      },
+      "away": {
+        "_id": "6a74fe5daa476400222bddea",
+        "teamName": "Crit Kickers",
+        "id": "654d89df4e14bb018a50e96e",
+        "logo": "Crit_Kickers_4773.png",
+        "teamName_lower": "crit kickers",
+        "ticker": "CRIT",
+        "score": 0
+      },
+      "__v": 2,
+      "scheduleDeadline": "1789358340000",
+      "other": {
+        "1": {
+          "winner": "home"
+        },
+        "2": {
+          "winner": "home"
+        },
+        "homeTeamPlayer": "Someone#0000",
+        "awayTeamPlayer": "Someone#0000"
+      },
+      "scheduledTime": {
+        "_id": "6aa0d38cce4bf600220ae72d",
+        "startTime": "1789090200000",
+        "endTime": "1789095600000"
+      },
+      "mapBans": {
+        "awayOne": "Sky Temple",
+        "awayTwo": "Cursed Hollow",
+        "homeOne": "Braxis Holdout",
+        "homeTwo": "Volskaya Foundry"
+      },
+      "postedToHP": true,
+      "replays": {
+        "_id": "6aa36cb3a3981900226400e2"
+      },
+      "reported": true,
+      "casterName": "Sharlit",
+      "casterUrl": "Sharlit"
+    },
+    {
+      "_id": "6ad56e9cef536200226492cf",
+      "vodLinks": [],
+      "idChildren": ["9j1jaymvek8jy5", "9j1jaymvek8jy6"],
+      "challonge_idChildren": ["476254827", "476254828"],
+      "challonge_match_ref": "476254830",
+      "type": "tournament",
+      "season": 22,
+      "challonge_tournament_ref": "18641390",
+      "matchId": "9j1jaymvek8jy8",
+      "round": 2,
+      "divisionConcat": "heroic",
+      "parentId": "9j1jaymvek8jy9",
+      "__v": 0,
+      "home": {
+        "_id": "6ad835123d70d400227130be",
+        "id": "695d8198e510c60020a1ae10",
+        "pos": "home",
+        "teamName": "Pending",
+        "logo": null,
+        "teamName_lower": "pending",
+        "ticker": "PENDING",
+        "score": 2
+      },
+      "away": {
+        "_id": "6ad8a2653d70d400227166ce",
+        "id": "6867226f42add30020ce7f19",
+        "pos": "home",
+        "teamName": "Hat saika and r",
+        "logo": null,
+        "teamName_lower": "hat saika and r",
+        "ticker": "hsr",
+        "score": 3
+      },
+      "boX": 5,
+      "other": {
+        "1": {
+          "winner": "away"
+        },
+        "2": {
+          "winner": "home"
+        },
+        "3": {
+          "winner": "away"
+        },
+        "4": {
+          "winner": "home"
+        },
+        "5": {
+          "winner": "away"
+        },
+        "homeTeamPlayer": "Someone#0000",
+        "awayTeamPlayer": "Someone#0000"
+      },
+      "scheduledTime": {
+        "_id": "6ae1412129fdbd0022d11f92",
+        "endTime": "1793241900000",
+        "priorScheduled": true,
+        "startTime": "1793236500000"
+      },
+      "casterName": "Rakugan The Gorgon",
+      "casterUrl": "https://www.twitch.tv/rakuganvt/",
+      "mapBans": {
+        "awayOne": "Garden of Terror",
+        "awayTwo": "Sky Temple",
+        "homeOne": "Braxis Holdout",
+        "homeTwo": "Volskaya Foundry"
+      },
+      "postedToHP": true,
+      "replays": {
+        "_id": "6ae2cd4187251600225d8ee9"
+      },
+      "reported": true
+    },
+    {
+      "_id": "6acd3a67bf5e42002212fe4a",
+      "vodLinks": [],
+      "idChildren": [],
+      "challonge_idChildren": [],
+      "challonge_match_ref": "475525382",
+      "type": "tournament",
+      "season": 22,
+      "challonge_tournament_ref": "18614294",
+      "matchId": "avwymv5o4sbc",
+      "round": 1,
+      "divisionConcat": "nexus",
+      "home": {
+        "_id": "6acd3a67bf5e42002212fe4b",
+        "teamName": "Uncle Chens House of Blues",
+        "id": "62b32b708aefb5001d126fe0",
+        "logo": "It's_Ya_Boi_King_Andrew_5477.png",
+        "teamName_lower": "uncle chens house of blues",
+        "ticker": "UWU"
+      },
+      "away": {
+        "_id": "6acd3a67bf5e42002212fe4c",
+        "teamName": "Boogans Forever",
+        "id": "5c47be52f6b60a0017681063",
+        "logo": "Boogans Forever0737_logo.png",
+        "teamName_lower": "boogans forever",
+        "ticker": "bf"
+      },
+      "parentId": "avwymv5o4sbg",
+      "__v": 0,
+      "boX": 5,
+      "other": {},
+      "scheduledTime": {
+        "_id": "6ad6f7109d72270022b0fbde",
+        "endTime": "1793239200000",
+        "startTime": "1793233800000"
+      },
+      "casterName": "Linehouse",
+      "casterUrl": "https://www.twitch.tv/linehouse",
+      "notes": "I did this for snarf sorry if it's not cool but I was getting asked about it <3"
+    },
+    {
+      "_id": "6a74fe5daa476400222bdca5",
+      "vodLinks": [],
+      "idChildren": [],
+      "challonge_idChildren": [],
+      "challonge_match_ref": "467476685",
+      "type": "seasonal",
+      "season": 22,
+      "challonge_tournament_ref": "18325933",
+      "matchId": "9xwoymsi1cx91",
+      "round": 10,
+      "divisionConcat": "c-east",
+      "home": {
+        "_id": "6a74fe5daa476400222bdca6",
+        "teamName": "Crimson Cyber Squad",
+        "id": "6786aaa09b2c8b00208212b6",
+        "dominator": true,
+        "score": 2,
+        "logo": "Crimson_Cyber_Squad_6562.png",
+        "teamName_lower": "crimson cyber squad",
+        "ticker": "CCS11"
+      },
+      "away": {
+        "_id": "6a74fe5daa476400222bdca7",
+        "teamName": "Bye",
+        "id": "6a74f941aa476400222bd6fb",
+        "dominator": false,
+        "score": 0,
+        "teamName_lower": "bye",
+        "ticker": "bye"
+      },
+      "__v": 0,
+      "scheduleDeadline": "1792382340000",
+      "forfeit": true,
+      "postedToHP": true,
+      "reported": true
+    },
+    {
+      "_id": "6acd3a67bf5e42002212fe56",
+      "vodLinks": [],
+      "idChildren": ["avwymv5o4sbc", "avwymv5o4sbd"],
+      "challonge_idChildren": ["475525382", "475525383"],
+      "challonge_match_ref": "475525386",
+      "type": "tournament",
+      "season": 22,
+      "challonge_tournament_ref": "18614294",
+      "matchId": "avwymv5o4sbg",
+      "round": 2,
+      "divisionConcat": "nexus",
+      "parentId": "avwymv5o4sbi",
+      "__v": 0,
+      "away": {
+        "_id": "6ad6f56a9d72270022b0fb0a",
+        "id": "5c46204b64c08b0017bc1eea",
+        "pos": "home",
+        "teamName": "Durotan's Couch",
+        "logo": "Durotan's Couch9326_logo.png",
+        "teamName_lower": "durotan's couch",
+        "ticker": "dc"
+      }
+    }
+  ]
+}
