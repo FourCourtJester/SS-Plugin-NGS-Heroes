@@ -1,0 +1,37 @@
+{
+  "name": "single-studio-plugin-example",
+  "version": "0.1.0",
+  "description": "What this reads, in one line. Shown on the operator's board and on npm.",
+  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR-NAME/YOUR-REPO.git"
+  },
+  "type": "module",
+  "keywords": [
+    "single-studio",
+    "single-studio-plugin",
+    "obs",
+    "broadcast"
+  ],
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint ."
+  },
+  "peerDependencies": {
+    "@single-studio/core": "^0.15.0"
+  },
+  "devDependencies": {
+    "@single-studio/core": "^0.15.0",
+    "vitest": "^5.0.2"
+  }
+}
