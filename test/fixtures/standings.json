@@ -1,0 +1,71 @@
+{
+  "message": "Calculated Standings",
+  "route": "/api/standings/fetch/division",
+  "returnObject": [
+    {
+      "wins": 16,
+      "points": 30,
+      "losses": 2,
+      "dominations": 6,
+      "id": "6a362b988065dc00226934b8",
+      "matchesPlayed": 8,
+      "logo": "Stormblessed_3562.png",
+      "teamName": "Stormblessed",
+      "standing": 1,
+      "tiebreakMethod": "points",
+      "change": "none"
+    },
+    {
+      "wins": 14,
+      "points": 28,
+      "losses": 2,
+      "dominations": 7,
+      "id": "695d8198e510c60020a1ae10",
+      "matchesPlayed": 8,
+      "logo": null,
+      "teamName": "Pending",
+      "standing": 2,
+      "tiebreakMethod": "points",
+      "change": "none"
+    },
+    {
+      "wins": 13,
+      "points": 25,
+      "losses": 4,
+      "dominations": 6,
+      "id": "6867226f42add30020ce7f19",
+      "matchesPlayed": 8,
+      "logo": null,
+      "teamName": "Hat saika and r",
+      "standing": 3,
+      "tiebreakMethod": "points",
+      "change": "none"
+    },
+    {
+      "wins": 11,
+      "points": 19,
+      "losses": 8,
+      "dominations": 3,
+      "id": "654d89df4e14bb018a50e96e",
+      "matchesPlayed": 8,
+      "logo": "Crit_Kickers_4773.png",
+      "teamName": "Crit Kickers",
+      "standing": 4,
+      "tiebreakMethod": "points",
+      "change": "none"
+    },
+    {
+      "wins": 0,
+      "points": 0,
+      "losses": 16,
+      "dominations": 0,
+      "id": "6a3215bbdde5760022c792c8",
+      "matchesPlayed": 8,
+      "logo": "Heathens_and_Heretics_2687.png",
+      "teamName": "Heretics and Heathens (Withdrawn S22)",
+      "standing": 9,
+      "tiebreakMethod": "",
+      "change": "none"
+    }
+  ]
+}

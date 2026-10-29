@@ -1,0 +1,134 @@
+{
+  "message": "Found team",
+  "route": "/api/team/get/registered",
+  "returnObject": [
+    {
+      "_id": "6867226f42add30020ce7f19",
+      "teamName": "Hat saika and r",
+      "teamName_lower": "hat saika and r",
+      "ticker": "hsr",
+      "ticker_lower": "hsr",
+      "logo": null,
+      "divisionConcat": "heroic",
+      "divisionDisplayName": "Heroic",
+      "captain": "Ada#1001",
+      "teamMembers": [
+        {
+          "_id": "5f37ed0dbfc7a200176037b0",
+          "displayName": "Ada#1001"
+        },
+        {
+          "_id": "6868144342add30020cebc0b",
+          "displayName": "Brook#1002"
+        },
+        {
+          "_id": "6a5afe305aa2d50022c3d0d5",
+          "displayName": "Cole#1003"
+        },
+        {
+          "_id": "6a5acfdd5aa2d50022c3bd68",
+          "displayName": "Dara#1004"
+        },
+        {
+          "_id": "6a5acc6d5aa2d50022c3bb29",
+          "displayName": "Eli#1005"
+        },
+        {
+          "_id": "6ab2dd80d1c5f30022216aa1",
+          "displayName": "Fen#1006"
+        }
+      ],
+      "twitch": null,
+      "twitter": null,
+      "youtube": null
+    },
+    {
+      "_id": "695d8198e510c60020a1ae10",
+      "teamName": "Pending",
+      "teamName_lower": "pending",
+      "ticker": "PENDING",
+      "ticker_lower": "pending",
+      "logo": null,
+      "divisionConcat": "heroic",
+      "divisionDisplayName": "Heroic",
+      "captain": "Gus#1007",
+      "teamMembers": [
+        {
+          "_id": "5f3a09470044a90017fadea2",
+          "displayName": "Gus#1007"
+        },
+        {
+          "_id": "695e5faae510c60020a1e777",
+          "displayName": "Hal#1008"
+        },
+        {
+          "_id": "695ea53dd8321000203c39fc",
+          "displayName": "Ivy#1009"
+        },
+        {
+          "_id": "696161358fe6500020640706",
+          "displayName": "Jo#1010"
+        },
+        {
+          "_id": "69d59b5ea3c25400227fc830",
+          "displayName": "Kit#1011"
+        },
+        {
+          "_id": "6a3df4a2279c100022ecc368",
+          "displayName": "Lou#1012"
+        },
+        {
+          "_id": "6a624ccb05907a00227d87c7",
+          "displayName": "Max#1013"
+        }
+      ],
+      "twitch": null,
+      "twitter": null,
+      "youtube": null
+    },
+    {
+      "_id": "6a362b988065dc00226934b8",
+      "teamName": "Stormblessed",
+      "teamName_lower": "stormblessed",
+      "ticker": "BLS",
+      "ticker_lower": "bls",
+      "logo": "Stormblessed_3562.png",
+      "divisionConcat": "heroic",
+      "divisionDisplayName": "Heroic",
+      "captain": "Ned#1014",
+      "teamMembers": [
+        {
+          "_id": "5e40aa3d86f3a900174102d5",
+          "displayName": "Ned#1014"
+        },
+        {
+          "_id": "6a362cb88065dc002269356d",
+          "displayName": "Oz#1015"
+        },
+        {
+          "_id": "6a38ba21aeb1090022607742",
+          "displayName": "Pip#1016"
+        },
+        {
+          "_id": "6a3ca5d9a20fac0022c60aae",
+          "displayName": "Quin#1017"
+        },
+        {
+          "_id": "6a3d9a62a20fac0022c631e1",
+          "displayName": "Rae#1018"
+        },
+        {
+          "_id": "6a4312f091782100229fea6f",
+          "displayName": "Sol#1019"
+        },
+        {
+          "_id": "6a813e8123ae6c002271d661",
+          "displayName": "Tam#1020"
+        }
+      ],
+      "twitch": null,
+      "twitter": null,
+      "youtube": null
+    }
+  ]
+}

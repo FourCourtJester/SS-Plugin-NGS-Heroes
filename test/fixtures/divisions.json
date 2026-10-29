@@ -1,0 +1,75 @@
+{
+  "message": "Return division info",
+  "route": "/api/division/get/all",
+  "returnObject": [
+    {
+      "teams": [
+        "Crowd Control Syndicate",
+        "Pepegas on Ice",
+        "Protectors of Shakuras",
+        "Xul Gin Distillery",
+        "FC Hong Kong",
+        "Protectors of Aiur",
+        "Tactical Feed",
+        "Cats On My Saddle"
+      ],
+      "_id": "61f0888d243fbe001ddd7b0a",
+      "displayName": "B East",
+      "divisionName": "B East",
+      "divisionConcat": "b-east",
+      "sorting": 7,
+      "__v": 55,
+      "divColor": "1717ef",
+      "public": true,
+      "divisionCoast": "",
+      "DRR": true
+    },
+    {
+      "teams": [
+        "Blackheart's Booty",
+        "Crit Kickers",
+        "Pending",
+        "Hat saika and r",
+        "Is Shoopufff Still Inting",
+        "Mango Fever",
+        "Stormblessed",
+        "Heretics and Heathens (Withdrawn S22)",
+        "Good Players, Bad Decisions"
+      ],
+      "_id": "60222cb328736b0028d77835",
+      "displayName": "Heroic",
+      "divisionName": "Heroic",
+      "divisionConcat": "heroic",
+      "sorting": 1,
+      "DRR": false,
+      "__v": 97,
+      "public": true,
+      "divColor": "fe610e",
+      "cupDiv": false,
+      "divisionCoast": ""
+    },
+    {
+      "teams": [
+        "Micro & Macro",
+        "Boogans Forever",
+        "Lightwell",
+        "Magnitude: Oblivion",
+        "Citrus Colored Squash",
+        "Uncle Chens House of Blues",
+        "Heavy Hitterz",
+        "LTK - Shaken, Not Tilted",
+        "The Negotiators",
+        "Durotan's Couch"
+      ],
+      "_id": "602220fd28736b0028d777f8",
+      "displayName": "Nexus",
+      "divisionName": "Nexus",
+      "divisionConcat": "nexus",
+      "sorting": 3,
+      "__v": 66,
+      "public": true,
+      "divColor": "e8834e",
+      "DRR": false
+    }
+  ]
+}
