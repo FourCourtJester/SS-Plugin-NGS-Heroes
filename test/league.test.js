@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { urlAssets } from '@single-studio/core/worker'
 
-import { apiFrom, divisionOf, explain, LEAGUE_API, logos, logoUrl, MAPS, matchOf, standingOf, teamOf } from '../src/league.js'
+import { apiFrom, divisionOf, explain, LEAGUE_API, logos, logoUrl, MAPS, matchOf, nameRounds, standingOf, teamOf } from '../src/league.js'
 
 // Real answers from the league, trimmed, with players' BattleTags replaced.
 const recorded = (name) => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8')).returnObject
@@ -150,6 +150,48 @@ describe('a match', () => {
 
   it('the caster comes with the match when one signed up', () => {
     expect(matchOf(byId('9j1jaymvek8jy8')).caster).toEqual({ name: 'Rakugan The Gorgon', url: 'https://www.twitch.tv/rakuganvt/' })
+  })
+})
+
+describe('naming rounds', () => {
+  // Season 22's Heroic, as the league numbered it: seasonal rounds alongside playoff
+  // rounds 1-3 of four, two and one matches.
+  const heroic = [
+    ...Array.from({ length: 4 }, () => ({ type: 'tournament', round: 1 })),
+    ...Array.from({ length: 2 }, () => ({ type: 'tournament', round: 2 })),
+    { type: 'tournament', round: 3 },
+    { type: 'seasonal', round: 2 },
+    { type: 'seasonal', round: 9 },
+  ]
+
+  it('playoff rounds are named back from the final, so a semifinal is not "Round 2"', () => {
+    const names = nameRounds(heroic).map((match) => `${match.type} ${match.round}: ${match.roundName}`)
+
+    expect(names).toContain('tournament 3: Finals')
+    expect(names).toContain('tournament 2: Semifinals')
+    expect(names).toContain('tournament 1: Quarterfinals')
+  })
+
+  it('regular-season rounds keep their number', () => {
+    expect(
+      nameRounds(heroic)
+        .filter((match) => match.type === 'seasonal')
+        .map((match) => match.roundName),
+    ).toEqual(['Round 2', 'Round 9'])
+  })
+
+  it('a round further out than the quarterfinals says which playoff round it is', () => {
+    const deep = nameRounds([...heroic, { type: 'tournament', round: 0 }])
+
+    expect(deep.at(-1).roundName).toBe('Playoffs Round 0')
+  })
+
+  it('a match with no round has no name, rather than "Round null"', () => {
+    expect(nameRounds([{ type: 'seasonal', round: null }])[0].roundName).toBe('')
+  })
+
+  it('a division with no playoffs names only its season rounds', () => {
+    expect(nameRounds([{ type: 'seasonal', round: 4 }]).map((match) => match.roundName)).toEqual(['Round 4'])
   })
 })
 

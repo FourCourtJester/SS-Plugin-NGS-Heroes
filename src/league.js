@@ -200,6 +200,45 @@ export function matchOf(raw) {
   }
 }
 
+/** Playoff rounds counted back from the last: the last is the final. */
+const PLAYOFF_ROUNDS = ['Finals', 'Semifinals', 'Quarterfinals']
+
+/**
+ * Each match given a `roundName` a graphic can show.
+ *
+ * The league's `round` is a bare number for the regular season and the playoffs
+ * alike: season 22's Heroic had rounds 1-9 of the season and rounds 1-3 of the
+ * playoffs, so a picker said "R2" for a semifinal. A playoff round is named by how
+ * far it is from the division's last one, which is the final.
+ *
+ * Takes the whole division, because the last round can only be known from all of
+ * them -- and before anything filters out played matches, or the semifinals turn
+ * into the finals once the final is the only one left to play.
+ *
+ * Every division in season 22 ended the same way: one final (the only match with
+ * no `parentId`), two semifinals, then a first round of four, or of one or two in
+ * the B and C divisions, where the top seeds had byes -- still the quarterfinals.
+ * None went deeper; a round further out is "Playoffs Round N". A double-elimination
+ * or cup bracket would be named wrongly, and none existed to check against.
+ *
+ * @template {{ type: string | null, round: number | null }} M
+ * @param {M[]} matches One division's, all of them.
+ * @returns {Array<M & { roundName: string }>}
+ */
+export function nameRounds(matches) {
+  const last = Math.max(0, ...(matches ?? []).filter((match) => match.type === 'tournament').map((match) => match.round ?? 0))
+
+  return (matches ?? []).map((match) => {
+    let roundName = ''
+
+    if (match.round !== null && match.round !== undefined) {
+      roundName = match.type === 'tournament' ? (PLAYOFF_ROUNDS[last - match.round] ?? `Playoffs Round ${match.round}`) : `Round ${match.round}`
+    }
+
+    return { ...match, roundName }
+  })
+}
+
 /**
  * A row of a division's table.
  *

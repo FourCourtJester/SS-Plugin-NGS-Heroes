@@ -110,11 +110,12 @@ afterEach(() => {
 })
 
 describe('a studio running the plugin', () => {
-  it('Fetch season on the panel puts every logo in the image library, under its team’s name', async () => {
+  it('at load, with nothing pressed, every logo lands in the image library under its team’s name', async () => {
     league()
     const made = await studio()
 
-    expect(await made.actPlugin('ngs', 'season')).toEqual({ ok: true })
+    // A host with no room is the owner, so it fetches the season as it starts.
+    await until(() => Doc.read(made.doc, 'variables.ngs.season') === 22, 'the season to land')
 
     expect(Doc.read(made.doc, 'assets.ngs/stormblessed')).toEqual({
       kind: 'url',
@@ -140,11 +141,11 @@ describe('a studio running the plugin', () => {
     expect(offered[1].label).toBe("Nexus r2: TBD vs Durotan's Couch")
   })
 
-  it('Season, Division, Match, Load: everything Load writes is already in the show: teams, logos, maps, division and Game 1 of Y', async () => {
+  it('Season at load, Division, Match, Load: everything Load writes is already in the show: teams, logos, maps, division and Game 1 of Y', async () => {
     league({ unplayed: true })
     const made = await studio()
 
-    await made.actPlugin('ngs', 'season')
+    await until(() => Doc.read(made.doc, 'variables.ngs.maps'), 'the season to land')
     made.mutate('ngs:matches', { division: 'heroic' })
     await until(() => Doc.read(made.doc, 'variables.ngs.matches')?.length === 2, 'Heroic’s matches to land')
 
