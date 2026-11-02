@@ -1,21 +1,21 @@
 import { definePlugin, PluginBase, PluginHandler } from '@single-studio/core/worker'
 
-import { apiFrom, ask, divisionOf, LEAGUE_API, MAPS, matchOf, standingOf, teamOf } from './league.js'
+import { apiFrom, ask, divisionOf, MAPS, matchOf, nameRounds, standingOf, teamOf } from './league.js'
 
-export { apiFrom, divisionOf, explain, LEAGUE_API, logos, logoUrl, MAPS, matchOf, sideOf, standingOf, teamOf } from './league.js'
+export { apiFrom, divisionOf, explain, LEAGUE_API, logos, logoUrl, MAPS, matchOf, nameRounds, sideOf, standingOf, teamOf } from './league.js'
 
 /**
  * How long one request to the league may take.
  *
  * Twenty seconds rather than the ten a poller gets, because the season's teams with
  * their rosters are a third of a megabyte: 326KB, measured. `fetch` has no deadline
- * of its own, and a request that connects and stalls would leave a button spinning
+ * of its own, and a request that connects and stalls would leave the plugin waiting
  * for ever.
  */
 const BUDGET_MS = 20_000
 
 /**
- * The Nexus Gaming Series, fetched when the operator asks.
+ * The Nexus Gaming Series: the season at load, a division when a board asks.
  *
  * Not a poller, though it reads a website. What it brings -- the teams, the
  * schedule, the table -- changes between shows, not during one, and the score is
@@ -26,16 +26,23 @@ const BUDGET_MS = 20_000
  * next at the league rather than after the download:
  *
  *   season    the number, divisions, teams with logos and rosters, the maps
- *   matches   one division's matches and its table      -- needs a division
+ *             -- at load, on the machine that owns the show
+ *   matches   one division's matches and its table, rounds named
+ *             -- when a board asks, with a division
  *
  * Choosing a match and loading it fetch nothing: by then every match in the list
  * carries its teams, logos, records and best-of, and Load is the studio's own
  * mutation writing them, so going live never waits on the league.
  *
- * Fetch season is a button on the plugin's panel. A division is a choice, and a
- * panel holds buttons but not choices, so it is a command a board's picker reaches
- * through `ask`. Each runs on the machine where it was asked: one request, not a
- * poll, so there is nothing for an owner to dedupe.
+ * The season needs nobody: it is fetched as the plugin starts, which is at load and
+ * after every Save of its settings, only on the owner -- the others get it
+ * replicated. Its one setting pins a season number, and a number the league is not
+ * on is refused rather than half-fetched (see #checked). `season` is still a command,
+ * for a board that wants a refetch button, say for a mid-season roster change.
+ *
+ * A division is a choice, and a plugin's panel holds no choices, so it is a command
+ * a board's picker reaches through `ask`, run on the machine where it was asked:
+ * one request, not a poll, so there is nothing for an owner to dedupe.
  */
 class Ngs extends PluginBase {
   /** What `command` takes. */
@@ -49,12 +56,9 @@ class Ngs extends PluginBase {
    *
    * The two match routes this reads leave the display name out -- 0 of 321 from
    * `schedule/fetch/matches`, none from `schedule/fetch/match` -- so without this a
-   * picker offers "nexus r1". Kept from Fetch season, or asked for once (3KB).
+   * picker offers "nexus r1". Kept from the season's fetch, or asked for once (3KB).
    */
   #names = null
-
-  /** What the panel says under the buttons: the last thing fetched, or why it failed. */
-  #said = null
 
   constructor(context = {}) {
     super('ngs')
@@ -62,24 +66,29 @@ class Ngs extends PluginBase {
     this.config = context.config ?? {}
     this.api = apiFrom(this.config.api)
     this.problem = null
+
+    // The season setting: blank is whatever season the league says it is.
+    this.pinned = Number(this.config.season) || null
+    this.owner = context.owner ?? (() => true)
   }
 
-  /** Nothing to open. Ready means a press will be answered. */
+  /**
+   * Fetches the season, so nobody has to: at load, and on every Save, since a Save
+   * restarts a plugin. The season changes every three months or so, and a button
+   * pressed that rarely is one nobody remembers.
+   *
+   * Only on the machine that owns the show. Every machine's worker starts the plugin,
+   * and the others get the season replicated, so their fetching it too would be
+   * 326KB each for nothing.
+   */
   start() {
     this.status = 'connected'
+
+    if (this.owner()) this.#run('season', {}).catch(() => {})
   }
 
   stop() {
     this.status = 'idle'
-  }
-
-  get notice() {
-    return this.#said ? { text: this.#said } : null
-  }
-
-  /** A panel button. Throws, so the panel shows why beside it. */
-  act(key) {
-    return this.#run(key, {})
   }
 
   /**
@@ -113,7 +122,6 @@ class Ngs extends PluginBase {
 
       this.status = 'error'
       this.problem = message
-      this.#said = null
       this.emit('problem', { status: error?.status ?? null, message })
 
       throw error
@@ -133,7 +141,7 @@ class Ngs extends PluginBase {
 
       // A refused request reaches here as a bare TypeError, "Failed to fetch". The
       // likeliest causes are the operator's network and a typo in the address.
-      throw new Error(`Could not reach the league at ${this.api}. Check the network, and the league address if you changed it.`)
+      throw new Error(`Could not reach the league at ${this.api}. Check the network.`)
     } finally {
       clearTimeout(timer)
     }
@@ -143,12 +151,28 @@ class Ngs extends PluginBase {
     if (this.#season === null) {
       const info = await this.#ask('admin/getSeasonInfo')
 
-      this.#season = Number(info?.value) || null
+      this.#season = this.#checked(Number(info?.value) || null)
     }
 
     if (!this.#season) throw new Error('The league did not say which season it is.')
 
     return this.#season
+  }
+
+  /**
+   * The league's season, refused if the setting names another.
+   *
+   * The league serves only the current season's teams and divisions:
+   * `team/get/registered` and `division/get/all` take no season, and a past season's
+   * logos are in another bucket. A past season would be its matches with this
+   * season's teams, so it is refused rather than half-fetched.
+   */
+  #checked(current) {
+    if (this.pinned && current && this.pinned !== current) {
+      throw new Error(`The league is on season ${current}, and only serves the current season's teams. Set Season to ${current}, or leave it blank.`)
+    }
+
+    return current
   }
 
   async #divisionNames() {
@@ -167,7 +191,7 @@ class Ngs extends PluginBase {
     // teams with rosters; one request for all of them beats 52 for one each.
     const [info, divisions, teams] = await Promise.all([this.#ask('admin/getSeasonInfo'), this.#ask('division/get/all'), this.#ask('team/get/registered')])
 
-    this.#season = Number(info?.value) || null
+    this.#season = this.#checked(Number(info?.value) || null)
     this.#names = new Map((divisions ?? []).map(divisionOf).map((division) => [division.key, division.name]))
 
     const payload = {
@@ -182,7 +206,6 @@ class Ngs extends PluginBase {
       maps: [...MAPS],
     }
 
-    this.#said = `Season ${payload.season}: ${payload.teams.length} teams in ${payload.divisions.length} divisions.`
     this.emit('season', payload)
   }
 
@@ -217,8 +240,9 @@ class Ngs extends PluginBase {
       ),
     ])
     const recordOf = (side) => (side && standings ? (standings.find((row) => row.id === side.id) ?? null) : null)
-    const matches = (raw ?? [])
-      .map(matchOf)
+    // Named over the whole division before anything else, since the final can only
+    // be found from all of its matches. See nameRounds.
+    const matches = nameRounds((raw ?? []).map(matchOf))
       .map((match) => ({
         ...this.#named(match, names),
         home: match.home && { ...match.home, record: recordOf(match.home) },
@@ -226,7 +250,6 @@ class Ngs extends PluginBase {
       }))
       .sort((a, b) => (a.start ?? Infinity) - (b.start ?? Infinity) || String(a.id).localeCompare(String(b.id)))
 
-    this.#said = `${matches.length} matches in ${names.get(division) ?? division}, season ${season}${standings ? '' : ', without the table'}.`
     this.emit('matches', { season, division, matches, standings })
   }
 }
@@ -274,30 +297,17 @@ export const ngs = (Handler = NgsHandler) =>
   definePlugin({
     name: 'ngs',
     label: 'NGS',
-    summary: 'The Nexus Gaming Series: teams, logos, matches and tables, fetched when you ask.',
-    help: [
-      { type: 'text', text: 'Nothing to set up: the league’s site is public, and nothing here needs a key or a login.' },
-      {
-        type: 'steps',
-        items: [
-          'Press Fetch season once a show, or whenever teams change. It brings the season number, the divisions, every team with its logo and roster, and the map pool.',
-          'On the board, choose a division. Its matches and its table are fetched.',
-          'Choose a match and press Load before going live. Nothing is fetched then: it is all already here.',
-        ],
-      },
-      { type: 'note', text: 'Scores are kept on the board. This never fetches one.' },
-      { type: 'link', href: 'https://nexusgamingseries.org', label: 'Nexus Gaming Series' },
-    ],
+    // The settings are the season and nothing else (user, 2026-11-02): no notice,
+    // help, actions or league address. A problem still shows, as the row's reason.
     config: [
       {
-        key: 'api',
-        label: 'League address',
-        type: 'text',
-        placeholder: LEAGUE_API,
-        help: 'Leave blank. Only for pointing at a copy of the league’s site.',
+        key: 'season',
+        label: 'Season',
+        type: 'number',
+        placeholder: 'Current',
+        help: 'Leave blank. The league says which season it is on, and that season is fetched whenever the studio loads.',
       },
     ],
-    actions: [{ key: 'season', label: 'Fetch season' }],
     create: (context) => {
       const plugin = new Ngs(context)
 

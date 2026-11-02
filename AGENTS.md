@@ -15,10 +15,12 @@ Decided by the owner, and not to be undone without asking:
 - **Never a score.** The score is the operator's, kept on the board. A match side is
   `{ id, name, ticker, logo, record }`; the league's result, map bans and per-game
   winners are not carried. A side with a `score` key fails a test on purpose.
-- **Not a poller.** Nothing it brings changes during a show, so it fetches when
-  told. No refresh, no timer.
-- **Season > Division > Match > Load.** Fetch season is the panel's one button.
-  Choosing a division fetches that division's matches and its table, filtered by the
+- **Not a poller.** Nothing it brings changes during a show. No refresh, no timer.
+- **Season > Division > Match > Load.** The season is fetched as the plugin starts,
+  on the owner only, with no button (2026-11-02: "we only need a label and an input
+  for number. Nothing else."). The settings are one number box, Season, blank for
+  the league's current season; a number the league is not on is refused. Choosing a
+  division fetches that division's matches and its table, filtered by the
   league, not after a download. Choosing a match and Load fetch nothing: Load is the
   studio's own mutation, writing what is already in the show.
 - **Best-of is always a number**, so a board can say "Game 1 of Y". Stated by the

@@ -69,8 +69,12 @@ const watching = () => {
   return { MyShow, told }
 }
 
-const build = (Handler = NgsHandler, config = {}) => {
-  const plugin = ngs(Handler).create({ mutate: vi.fn(), owner: () => true, studio: 's', config })
+/**
+ * A running plugin. Not the owner unless asked, because the owner fetches the season
+ * the moment it starts, and most tests are about something else.
+ */
+const build = (Handler = NgsHandler, config = {}, { owner = false } = {}) => {
+  const plugin = ngs(Handler).create({ mutate: vi.fn(), owner: () => owner, studio: 's', config })
 
   plugin.start()
 
@@ -82,12 +86,13 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('fetching the season', () => {
-  it('Fetch season brings the season number, divisions, teams with logos, and the maps', async () => {
+describe('the season, fetched at load', () => {
+  it('on the machine that owns the show, the season arrives at load with nothing pressed', async () => {
     league()
     const { MyShow, told } = watching()
 
-    await build(MyShow).act('season')
+    build(MyShow, {}, { owner: true })
+    await vi.waitFor(() => expect(told.season).toHaveLength(1))
 
     const [season] = told.season
 
@@ -98,20 +103,12 @@ describe('fetching the season', () => {
     expect(season.maps).toHaveLength(12)
   })
 
-  it('the panel says what was fetched', async () => {
-    league()
-    const plugin = build()
-
-    await plugin.act('season')
-
-    expect(plugin.notice.text).toBe('Season 22: 3 teams in 3 divisions.')
-    expect(plugin.status).toBe('connected')
-  })
-
   it('asks the league the way it was measured to answer', async () => {
     const { asked } = league()
+    const { MyShow, told } = watching()
 
-    await build().act('season')
+    build(MyShow, {}, { owner: true })
+    await vi.waitFor(() => expect(told.season).toHaveLength(1))
 
     expect(asked.map((request) => `${request.method} ${request.route}`).sort()).toEqual([
       'GET admin/getSeasonInfo',
@@ -119,15 +116,73 @@ describe('fetching the season', () => {
       'GET team/get/registered',
     ])
   })
+
+  it('on any other machine nothing is fetched at load: the season reaches it replicated', async () => {
+    const { asked } = league()
+
+    build(NgsHandler, {}, { owner: false })
+    // Long enough for a start-up fetch to have begun, if there were one.
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    expect(asked).toHaveLength(0)
+  })
+
+  it('the settings are the season and nothing else: no buttons, no help, no league address', () => {
+    const definition = ngs()
+
+    expect(definition.config.map(({ key, type }) => ({ key, type }))).toEqual([{ key: 'season', type: 'number' }])
+    expect(definition.actions).toEqual([])
+    expect(definition.help).toEqual([])
+    expect(definition.summary).toBe('')
+  })
+
+  it('a season the league is not on is refused, naming the one it is on, and nothing is written', async () => {
+    league()
+    const { MyShow, told } = watching()
+    const plugin = build(MyShow, { season: 21 }, { owner: true })
+
+    await vi.waitFor(() => expect(told.problem).toHaveLength(1))
+
+    expect(told.season).toHaveLength(0)
+    expect(told.problem[0].message).toBe("The league is on season 22, and only serves the current season's teams. Set Season to 22, or leave it blank.")
+    expect(plugin.status).toBe('error')
+    expect(plugin.problem).toMatch(/Set Season to 22/)
+  })
+
+  it('a division is refused the same way under a season the league is not on', async () => {
+    const { asked } = league()
+    const { MyShow, told } = watching()
+
+    build(MyShow, { season: 21 }).command('matches', { division: 'heroic' })
+    await vi.waitFor(() => expect(told.problem).toHaveLength(1))
+
+    expect(told.matches).toHaveLength(0)
+    expect(asked.map((request) => request.route)).toEqual(['admin/getSeasonInfo'])
+  })
+
+  it('the season the league is on, typed in, is accepted', async () => {
+    league()
+    const { MyShow, told } = watching()
+
+    build(MyShow, { season: 22 }, { owner: true })
+    await vi.waitFor(() => expect(told.season).toHaveLength(1))
+
+    expect(told.season[0].season).toBe(22)
+  })
+
+  it('a cleared Season box, which core stores as NaN, means the current season', async () => {
+    league()
+    const { MyShow, told } = watching()
+
+    build(MyShow, { season: Number.NaN }, { owner: true })
+    await vi.waitFor(() => expect(told.season).toHaveLength(1))
+
+    expect(told.season[0].season).toBe(22)
+    expect(told.problem).toHaveLength(0)
+  })
 })
 
 describe('choosing a division', () => {
-  it('the panel offers only Fetch season; matches need a division, which is the board’s to choose', () => {
-    league()
-
-    expect(ngs().actions.map((action) => action.key)).toEqual(['season'])
-  })
-
   it('choosing a division asks the league for that division’s matches and no others', async () => {
     const { asked } = league()
     const { MyShow, told } = watching()
@@ -160,7 +215,8 @@ describe('choosing a division', () => {
     const { MyShow, told } = watching()
     const plugin = build(MyShow)
 
-    await plugin.act('season')
+    plugin.command('season')
+    await vi.waitFor(() => expect(told.season).toHaveLength(1))
     asked.length = 0
 
     plugin.command('matches', { division: 'heroic' })
@@ -181,6 +237,20 @@ describe('choosing a division', () => {
     await vi.waitFor(() => expect(told.matches).toHaveLength(1))
 
     expect(told.matches[0].matches.find((match) => match.id === '9j1jaymvek8jy8').divisionName).toBe('Heroic')
+  })
+
+  it('each match arrives with its round named, the final found from the whole division', async () => {
+    league()
+    const { MyShow, told } = watching()
+
+    build(MyShow).command('matches', { division: 'heroic' })
+    await vi.waitFor(() => expect(told.matches).toHaveLength(1))
+
+    const byId = Object.fromEntries(told.matches[0].matches.map((match) => [match.id, match.roundName]))
+
+    // The recording has Heroic's regular-season round 5 and playoff round 2, which
+    // is the last playoff round in the recording, so it is named the final.
+    expect(byId).toEqual({ '9xwoymsi1cxeh': expect.stringMatching(/^Round \d+$/), '9j1jaymvek8jy8': 'Finals' })
   })
 
   it('matches come soonest first, with the unscheduled ones last', async () => {
@@ -218,7 +288,7 @@ describe('a division’s table', () => {
     expect(standings[0]).toMatchObject({ name: 'Stormblessed', rank: 1 })
   })
 
-  it('a table that will not come still brings the matches, and the panel says it came without one', async () => {
+  it('a table that will not come still brings the matches, each record left empty', async () => {
     league({ 'standings/fetch/division': () => answer(500, { message: 'down' }) })
     const { MyShow, told } = watching()
     const plugin = build(MyShow)
@@ -229,7 +299,7 @@ describe('a division’s table', () => {
     expect(told.matches[0].matches).toHaveLength(2)
     expect(told.matches[0].standings).toBeNull()
     expect(told.matches[0].matches[0].home.record).toBeNull()
-    expect(plugin.notice.text).toMatch(/without the table/)
+    expect(plugin.status).toBe('connected')
   })
 
   it('a division the league cannot answer for says so, and nothing is written', async () => {
@@ -246,16 +316,19 @@ describe('a division’s table', () => {
 })
 
 describe('when the league is not there', () => {
-  it('a press that cannot reach the league says so beside the button', async () => {
+  it('a league that cannot be reached at load says so, as the plugin’s reason', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => {
         throw new TypeError('Failed to fetch')
       }),
     )
-    const plugin = build()
+    const { MyShow, told } = watching()
+    const plugin = build(MyShow, {}, { owner: true })
 
-    await expect(plugin.act('season')).rejects.toThrow(/Could not reach the league at https:\/\/nexusgamingseries\.org\/api/)
+    await vi.waitFor(() => expect(told.problem).toHaveLength(1))
+
+    expect(plugin.problem).toBe('Could not reach the league at https://nexusgamingseries.org/api. Check the network.')
     expect(plugin.status).toBe('error')
   })
 
@@ -272,17 +345,18 @@ describe('when the league is not there', () => {
     )
 
     try {
-      const pressed = build().act('season')
-      const settled = expect(pressed).rejects.toThrow(/did not answer within 20s/)
+      const { MyShow, told } = watching()
 
+      build(MyShow, {}, { owner: true })
       await vi.advanceTimersByTimeAsync(20_000)
-      await settled
+
+      expect(told.problem.map((problem) => problem.message)).toEqual(['The league did not answer within 20s.'])
     } finally {
       vi.useRealTimers()
     }
   })
 
-  it('the board can point it at another address', async () => {
+  it('an address in the config still replaces the league’s, for testing against a copy of it', async () => {
     const { asked } = league()
 
     vi.mocked(fetch).mockImplementationOnce(async (url) => {

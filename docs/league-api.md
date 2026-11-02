@@ -183,16 +183,17 @@ Single Studio plugin made and published on its own.
 
 Not a poller, and it never asks for a score. The owner's call, on 2026-10-29: team
 names do not change during a show and the score is the operator's, kept on the
-board. What the plugin brings changes between shows, so it fetches when told, on the
-machine where it was told; a press is one request, so there is nothing for an owner
-to dedupe.
+board. What the plugin brings changes between shows, so it fetches when told: the
+season as the plugin starts (since 0.2.0, on the owner only; 0.1.0 had a Fetch
+season button nobody would remember to press once a season), a division when a
+board asks, on the machine that asked.
 
 It is a waterfall, **Season > Division > Match > Load**, and each fetch is a filter
 the league applies, not one applied after a download:
 
 | Step                      | Requests                                                        | Event     |
 | ------------------------- | --------------------------------------------------------------- | --------- |
-| Fetch season (panel)      | `getSeasonInfo`, `division/get/all`, `team/get/registered`      | `season`  |
+| The plugin starts (owner) | `getSeasonInfo`, `division/get/all`, `team/get/registered`      | `season`  |
 | Choose a division (board) | `schedule/fetch/matches` and `standings/fetch/division`, for it | `matches` |
 | Choose a match, Load      | nothing                                                         |           |
 
@@ -232,5 +233,31 @@ the steps were filters, it was rebuilt so they are.
   record null. Cup divisions answer in a different shape, and none existed to
   measure.
 
-Still open: whether "this week's match" wants a queue rather than one selection;
-what a cup division's table looks like; and `casted/playing` during a live cast.
+- **Rounds are named** (0.2.0). `round` is a bare number for both kinds of match:
+  Heroic had regular-season rounds 1-9 and playoff rounds 1-3, and a picker said
+  "R2" for a semifinal. Every division in season 22 ended the same way -- one final,
+  the only match with no `parentId`; two semifinals; then a first round of four, or
+  of one or two in the B and C divisions, where the top seeds had byes -- so a
+  playoff round is named by its distance from the division's last. Built and
+  checked in FCJ Heroes first.
+- **The season setting refuses past seasons** (0.2.0). `team/get/registered` and
+  `division/get/all` take no season, and a past season's logos are in another
+  bucket (`ngs-archive-image`), so a past season would be its matches with this
+  season's teams. Serving one would mean asking `schedule/fetch/matches` and
+  `standings/fetch/division` with `pastSeason`, and finding the teams somewhere.
+
+## Logos are padded
+
+Found by FCJ Heroes, 2026-11-02. NGS normalises the canvas, not the art: of season
+22's 49 logos, 47 are 500×350 and 2 are 350×230, with the art fitted inside on
+transparency. S3 sends no CORS header, so neither a page nor the worker can read the
+pixels to trim them. Heroes zooms any logo from that address by 500/350 on its
+plate: 25 fit, 14 lose under a fifth of their width, and 10 edge-to-edge logos lose
+30%. Trimmed logos, or each team's art box, would let a studio fill a plate without
+guessing; nothing here can produce either without the pixels.
+
+## Still open
+
+Whether "this week's match" wants a queue rather than one selection; what a cup
+division's table looks like; a double-elimination bracket's round names;
+`casted/playing` during a live cast; and past seasons, above.
